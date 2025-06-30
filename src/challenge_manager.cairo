@@ -51,6 +51,11 @@ mod ChallengeManager {
         // Streak tracking storage
         user_streaks: LegacyMap<ContractAddress, u64>, // user -> current streak count
         user_last_solve_timestamp: LegacyMap<ContractAddress, u64>, // user -> last solve timestamp
+        
+        // Puzzle assignment storage
+        user_assigned_puzzles: LegacyMap<(ContractAddress, u64), u64>, // (user, hunt_id) -> assigned_puzzle_id
+        user_puzzle_nonce: LegacyMap<ContractAddress, u64>, // user -> nonce for randomness
+        puzzle_assignment_status: LegacyMap<(ContractAddress, u64), bool>, // (user, hunt_id) -> has_assigned_puzzle
     }
 
     // Challenge struct
@@ -80,6 +85,7 @@ mod ChallengeManager {
         ChallengeAdded: ChallengeAdded,
         ChallengeCompleted: ChallengeCompleted,
         StreakUpdated: StreakUpdated,
+        PuzzleAssigned: PuzzleAssigned,
         #[flat]
         AccessControlEvent: AccessControl::Event,
     }
@@ -262,6 +268,13 @@ mod ChallengeManager {
         ) -> bool {
             let caller = get_caller_address();
             
+            // Check if user has an assigned puzzle and if this is the correct one
+            let has_assigned = self.puzzle_assignment_status.read((caller, hunt_id));
+            if has_assigned {
+                let assigned_puzzle_id = self.user_assigned_puzzles.read((caller, hunt_id));
+                assert(challenge_id == assigned_puzzle_id, 'Must solve assigned puzzle first');
+            }
+            
             // Get the challenge
             let challenge = self.challenges.read((hunt_id, challenge_id));
             assert(challenge.active, 'Challenge not active');
@@ -279,6 +292,12 @@ mod ChallengeManager {
                 let mut completed = self.user_completed_challenges.read((caller, hunt_id));
                 completed.append(challenge_id);
                 self.user_completed_challenges.write((caller, hunt_id), completed);
+                
+                // Clear puzzle assignment to allow new assignment
+                if has_assigned {
+                    self.puzzle_assignment_status.write((caller, hunt_id), false);
+                    self.user_assigned_puzzles.write((caller, hunt_id), 0);
+                }
                 
                 // Update streak
                 let current_timestamp = get_block_timestamp();
@@ -451,4 +470,16 @@ trait IChallengeManager<TContractState> {
     fn update_streak(ref self: TContractState, user: ContractAddress, day_timestamp: u64);
     fn get_user_streak(self: @TContractState, user: ContractAddress) -> u64;
     fn get_user_last_solve_timestamp(self: @TContractState, user: ContractAddress) -> u64;
+    
+    // Puzzle assignment functions
+    fn assign_puzzle(ref self: TContractState, hunt_id: u64) -> u64;
+    fn get_assigned_puzzle(self: @TContractState, user: ContractAddress, hunt_id: u64) -> u64;
+    fn has_assigned_puzzle(self: @TContractState, user: ContractAddress, hunt_id: u64) -> bool;
+    
+    fn submit_answer(
+        ref self: TContractState,
+        hunt_id: u64,
+        challenge_id: u64,
+        answer_hash: felt252
+    ) -> bool;
 }
