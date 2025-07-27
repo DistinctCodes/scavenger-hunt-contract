@@ -3,3 +3,4 @@
 // mod social_metadata;
 // mod zk_verifier;
 mod puzzle_event_emitter; 
+mod PuzzleNFT;
