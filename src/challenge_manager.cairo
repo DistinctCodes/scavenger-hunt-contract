@@ -1,3 +1,6 @@
+// src/challenge_manager.cairo
+
+
 //! # Challenge Manager Contract
 //! 
 //! This contract manages challenges for scavenger hunts and tracks user streaks.
