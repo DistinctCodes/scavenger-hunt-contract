@@ -1,5 +1,7 @@
 // src/lib.cairo
-
-pub mod challenge_manager;
-pub mod nft_rewards;
-pub mod referral_rewarder;
+// mod challenge_manager;
+// mod nft_rewards;
+// mod social_metadata;
+// mod zk_verifier;
+mod puzzle_event_emitter; 
+mod PuzzleNFT;
