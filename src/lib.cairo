@@ -1,3 +1,4 @@
+// src/lib.cairo
 // mod challenge_manager;
 // mod nft_rewards;
 // mod social_metadata;

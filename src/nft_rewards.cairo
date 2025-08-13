@@ -1,3 +1,5 @@
+// src/nft_rewards.cairo
+
 //! # NFT Rewards Contract
 //! 
 //! This contract manages upgradeable NFT rewards for scavenger hunt completions.
@@ -79,12 +81,12 @@ mod NFTRewards {
         src5: SRC5Component::Storage,
         
         // NFT upgrade tracking
-        token_levels: LegacyMap<u256, u8>, // token_id -> level (1=Bronze, 2=Silver, 3=Gold)
+        token_levels: Map<u256, u8>, // token_id -> level (1=Bronze, 2=Silver, 3=Gold)
         next_token_id: u256,
         
         // Hunt completion tracking for upgrades
-        user_hunt_completions: LegacyMap<ContractAddress, u64>, // user -> total hunt completions
-        user_tokens: LegacyMap<ContractAddress, Array<u256>>, // user -> owned token IDs
+        user_hunt_completions: Map<ContractAddress, u64>, // user -> total hunt completions
+        user_tokens: Map<ContractAddress, Array<u256>>, // user -> owned token IDs
     }
 
     // Events

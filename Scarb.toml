@@ -21,3 +21,14 @@ sierra-replace-ids = true
 [[target.starknet-contract]]
 sierra = true
 casm = true
+
+
+[dev-dependencies]
+snforge_std = "0.38.0"
+assert_macros = "2.10.1"
+
+[scripts]
+test = "snforge test"
+
+[tool.scarb]
+allow-prebuilt-plugins = ["snforge_std"]
